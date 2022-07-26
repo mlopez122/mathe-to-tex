@@ -1,0 +1,3 @@
+W54[b_,a_,c_,q_,z_] := W76[ q^(2 n) a, b c/Sqrt[q a], q^n d, q^n e, q^n f, q, z]
+
+W54[b_,a_,c_,q_,z_] := This is some lorum ipsum: W76[ q^(2 n) a, b c/Sqrt[q a], q^n d, q^n e, q^n f, q, z]
