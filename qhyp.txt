@@ -1,0 +1,1 @@
+QHypergeometricPFQ[{q^-k, Sqrt[q a], b a q, (a q)/(c d)}, {( b q^(1/2 - k))/Sqrt[a], (a q)/c, (a q)/d}, q, z]

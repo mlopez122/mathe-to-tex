@@ -1,0 +1,25 @@
+QPh[a_, q_, n_] := Product[QPochhammer[Part[a, i], q, n], {i, 1, Length[a]}];
+
+QPhI[a_, q_] := Product[QPochhammer[Part[a, i], q], {i, 1, Length[a]}];
+
+qAW[n_, x_, a_, b_, c_, d_, q_] := a^(-n) QPh[{a b, a c, a d}, q, n] QHypergeometricPFQ[{q^(-n), a b c d q^(n - 1), a Exp[I Arcos[x]], a Exp[-I Arcos[x]]}, {a b, a c, a d}, q, q ]
+
+W87[b_, a_, c_, d_, e_, f_, q_, z_] := QHypergeometricPFQ[{a, q Sqrt[b], -q Sqrt[b], b, c, d, e, f}, {Sqrt[b], -Sqrt[b], q b/a, q b/c, q b/d, q b/e, q b/f}, q, z];
+
+W76[b_, a_, c_, d_, e_, q_, z_] := QHypergeometricPFQ[{a, q Sqrt[b], -q Sqrt[b], b, c, d, e}, {Sqrt[b], -Sqrt[b], q b/a, q b/c, q b/d, q b/e}, q, z];
+
+W65[b_, a_, c_, d_, q_, z_] := QHypergeometricPFQ[{a, q Sqrt[b], -q Sqrt[b], b, c, d}, {Sqrt[b], -Sqrt[b], q b/a, q b/c, q b/d}, q, z];
+
+W54[b_, a_, c_, q_, z_] := QHypergeometricPFQ[{a, q Sqrt[b], -q Sqrt[b], b, c}, {Sqrt[b], -Sqrt[b], q b/a, q b/c}, q, z];
+
+a = 1/Sqrt[2]; b = 1/Sqrt[3]; c = 1/Sqrt[5]; d = 1/Sqrt[7]; e = 1/Sqrt[11]; f = 1/Sqrt[15]; q = 1/(8 7); z = 1/Sqrt[233242325];
+
+W87[a, b, c, d, e, f, q, z] == Sum[QPh[{Sqrt[q] a^(3/2)/(b c), Sqrt[q a]/b, Sqrt[q a]/c, q a/(b c), d, e, f}, q, n]/ QPh[{q, Sqrt[q a], q a/b, q a/c, q a/d, q a/e, q a/f}, q, n] QPh[{q a}, q, 2 n]/ QPh[{Sqrt[q] a^(3/2)/(b c)}, q, 2 n] (b c z/Sqrt[q a])^n W76[ q^(2 n) a, b c/Sqrt[q a], q^n d, q^n e, q^n f, q, z], {n, 0, Infinity}]
+
+W76[a, b, c, d, e, q, z] == Sum[QPh[{Sqrt[q] a^(3/2)/(b c), Sqrt[q a]/b, Sqrt[q a]/c, q a/(b c), d, e}, q, n]/ QPh[{q, Sqrt[q a], q a/b, q a/c, q a/d, q a/e}, q, n] QPh[{q a}, q, 2 n]/QPh[{Sqrt[q] a^(3/2)/(b c)}, q, 2 n] (b c z/Sqrt[q a])^ n W65[q^(2 n) a, b c/Sqrt[q a], q^n d, q^n e, q, z], {n, 0, Infinity}]
+
+W65[a, b, c, d, q, z] == Sum[QPh[{Sqrt[q] a^(3/2)/(b c), Sqrt[q a]/b, Sqrt[q a]/c, q a/(b c), d}, q, n]/ QPh[{q, Sqrt[q a], q a/b, q a/c, q a/d}, q, n] QPh[{q a}, q, 2 n]/ QPh[{Sqrt[q] a^(3/2)/(b c)}, q, 2 n] (b c z/Sqrt[q a])^n W54[ q^(2 n) a, b c/Sqrt[q a], q^n d, q, z], {n, 0, Infinity}]
+
+W76[a, b, c, d, e, q, z] == Sum[QPh[{Sqrt[q] a^(3/2)/(b c), Sqrt[q a]/b, Sqrt[q a]/c, q a/(b c), d, e}, q, n]/ QPh[{q, Sqrt[q a], q a/b, q a/c, q a/d, q a/e}, q, n] QPh[{q a}, q, 2 n]/QPh[{Sqrt[q] a^(3/2)/(b c)}, q, 2 n] (b c z/Sqrt[q a])^ n W65[q^(2 n) a, b c/Sqrt[q a], q^n d, q^n e, q, z], {n, 0, Infinity}]
+
+W65[a, b, c, d, q, z] == QPhI[{(Sqrt[q] b c d z)/Sqrt[a], (b^2 c^2 d^2 z^2)/(a^2 q^2)}, q]/ QPhI[{(b c d z)/(a q)^(3/2), (b^2 c^2 d^2 z^2)/(q a^2)}, q] Sum[ QPh[{q Sqrt[a], -q Sqrt[a], -Sqrt[a q], Sqrt[a q]/b}, q, k]/ QPh[{q, (a q)/b, (Sqrt[q] b c d z)/Sqrt[a], (q^(5/2) a^(3/2))/( b c d z)}, q, k] q^ k QHypergeometricPFQ[{q^-k, Sqrt[q a], b, (a q)/(c d)}, {( b q^(1/2 - k))/Sqrt[a], (a q)/c, (a q)/d}, q, q], {k, 0, 20}] + QPhI[{a q, Sqrt[a q]/b, (b c d z)/(q a), (c d z)/Sqrt[a q]}, q]/ QPhI[{Sqrt[a q], (a q)/b, (c d z)/(q a), (a q)^(3/2)/(b c d z)}, q] Sum[QPh[{(b c d z)/( a Sqrt[q]), -((b c d z)/(a Sqrt[q])), -((b c d z)/(a q)), ( c d z)/(a q)}, q, k]/ QPh[{q, (b^2 c^2 d^2 z^2)/(a^2 q), (c d z)/Sqrt[a q], (b c d z)/ Sqrt[a^3 q]}, q, k] q^ k QHypergeometricPFQ[{(q^(3/2 - k) a^(3/2))/(b c d z), Sqrt[a q], b, (a q)/(c d)}, {(a q^(2 - k))/(c d z), (a q)/c, (a q)/d}, q, q], {k, 0, 20}] + QPhI[{a q, b, c z, d z, (a q)/(c d)}, q]/ QPhI[{z, (a q)/b, (a q)/c, (a q)/d, (a q)/(c d z)}, q] Sum[ QPh[{z, Sqrt[a q]/b, (b c d z)/(a q), (c d z)/Sqrt[a q]}, q, k]/ QPh[{q, d z, c z, (c d z)/a}, q, k] q^ k QHypergeometricPFQ[{q^-k, (b c d z)/( a Sqrt[q]), -((b c d z)/(a Sqrt[q])), -((b c d z)/(a q))}, {( b q^(1/2 - k))/Sqrt[a], (c d z)/Sqrt[a q], (b^2 c^2 d^2 z^2)/( a^2 q)}, q, q], {k, 0, 20}] 

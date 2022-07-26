@@ -1,0 +1,1 @@
+{(q,\left(\frac{b c d z}{q a}\right)^2,q a,\frac{(q a)^{3/2}}{b c d};q)_\infty}/(2 \[Pi] {(f,\frac{q}{f},\frac{f (q a)^{3/2}}{b c d z},\frac{q b c d z}{f (q a)^{3/2}},\frac{b^2 c^2 d^2 z^2}{q a^2},\frac{q a}{d},\frac{q^{3/2} a^{3/2}}{b c};q)_\infty})

@@ -1,0 +1,1 @@
+pre text QPhI[{q, ((b c d z)/(q a))^2, q a, (q a)^(3/2)/(b c d)}, q] post text

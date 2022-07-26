@@ -1,0 +1,1 @@
+QPh[{Sqrt[q] a^(3/2)/(b c), Sqrt[q a]/b, Sqrt[q a]/c, q a/(b c), d, e, f}, q, n]/ QPh[{q, Sqrt[q a], q a/b, q a/c, q a/d, q a/e, q a/f}, q, n] QPh[{q a}, q, 2 n]
