@@ -39,7 +39,9 @@ while (<DATA>) {
     if ($currentLine =~ /Sum/) { #Regexp for Summations
         $currentLine = processSum($currentLine);
     }
-
+    if ($currentLine =~ /NIntegrate/) {
+        $currentLine = processIntegrate($currentLine);
+    }
     if ($currentLine =~ /W(\d\d+)/) { #Regexp for Whyp functions
         $currentLine = processWhyp($currentLine);
     }
@@ -242,7 +244,7 @@ sub processQPhI {
         my $qBody = '(' . $texList . ';';
         my @addOns = split(',', $internalPieces[1]);
         #$qBody now will become the correct in-place substitution
-        $qBody = $qBody . grabTex($addOns[1]) . ')_\infty}'; 
+        $qBody = $qBody . grabTex($addOns[1]) . ')_{\infty}'; 
         
         #now modify $qString by putting pieces back together
         $qString = $pre . $qBody . $pieces[1];
@@ -273,7 +275,6 @@ sub processSum {
         #regex grouping to hop to last set of '{...}'
         #leading bracket and trailing bracket are matched off
         $sumPieces[0] =~ /^\[(.+), \{(.+)\}/g;
-        my $str = $sumPieces[0];
         my $fBody = $1; #this is f
         my $bounds = $2; #assign bounds
 
@@ -377,6 +378,44 @@ sub processQhyp {
 
     } while ($qString =~ /QHypergeometricPFQ/);
     return $qString;
+}
+
+#replace Integrals (in this context the body of the integral
+#will have already been converted)
+#form: NIntegrate[f, {x, xmin, xmax}, WP -> n] -> \int_{min}^{max} f
+sub processIntegrate {
+    my $intString = $_[0]; #collect param string
+    do {
+        $intString =~ /NIntegrate/;
+        my $pre = substr($intString, 0, $-[0]); #all text before NIntegrate, save for later on last step
+        my $sType = substr($intString, $-[0], $+[0]-$-[0]); #has 'NIntegrate', currently unused
+        my $post = substr($intString, $+[0]); #has [f, {var, min,max}] ...
+
+        #@sumPieces is now an array of size 3 with following properties:
+        #$sumPieces[0] -> whole of bracketed contents of NIntegrate, includes outside pair of balanced square []'s
+        #$sumPieces[1] -> ALL remaining text that comes after the NIntegrate[...], must be saved for later
+        #$sumPieces[2] -> any preceding text before '['; is "" in this context due to prior processing
+        my @intPieces = extract_bracketed($post, "[]");
+
+        #Regexp places all text before bounds in matching group $1
+        #then captures ', {bounds}' in group $2
+        #removes all of group $2 from the string sumPieces
+        #regex grouping to hop to last set of '{...}'
+        #leading bracket and trailing bracket are matched off
+        $intPieces[0] =~ /^\[(.+), \{(.+)\}/g;
+        my $fBody = $1; #this is f
+        my $bounds = $2; #assign bounds
+
+        #$boundsComponents[0] = i
+        #$boundsComponents[1] = min
+        #$boundsComponents[2] = max
+        my @boundsComponents = split(',', $bounds); 
+        my $intBody = '\int_{' . grabTex($boundsComponents[1]) . '}^{' . grabTex($boundsComponents[2]) . '}' . $fBody . '\, d' . grabTex($boundsComponents[0]);
+
+        #sumBody has correct summation form, BUT f is unevaluated, left for other functions
+        $intString = $pre . $intBody . $intPieces[1];
+    } while ($intString =~ /NIntegrate/);
+    return $intString;
 }
 
 #requires wolframscript to be installed
