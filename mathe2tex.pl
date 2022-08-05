@@ -7,7 +7,10 @@ use Text::Balanced qw (
 
 use strict;
 use warnings;
-use re 'strict';
+
+#provides a warning if unconventional regex is used, avoids common regexp mistakes
+use re 'strict'; 
+
 
 #####################################
 #Cmd line user prompt mode
@@ -28,12 +31,17 @@ open(DATA, $filename) or die "provided file name doesn't exist";
 
 #####################################
 
+our $topLevelFraction = 0;
 #read line by line until end of file
 while (<DATA>) {
     
     my $currentLine = $_;
-    #TODO squash top level /'s here
-    #here
+
+    #no boolean types in perl, but the 0 scalar evaluates to 'false'
+    #this logic functions since the raw fractions are between pairs of QPh's and QPhI's
+    #so although they're evaluated in different orders, this methodology still works
+      
+
     $currentLine =~ s/\\/\\\\/g; #replace ALL '\' escape characters with '\\' to neutralize them
 
     if ($currentLine =~ /Sum/) { #Regexp for Summations
@@ -174,6 +182,9 @@ sub processQPh {
         #$pieces[1] -> ALL remaining text that comes after the QPh[...], must be saved for later
         #$pieces[2] -> any preceding text before '['; is "" in this context due to prior processing
 
+        if (substr($pieces[1], 0, 1) eq '/') {
+            $topLevelFraction = 1;
+        }
         #peel off external []'s
         my $rawContents = substr($pieces[0], 1, length($pieces[0]) - 2);
 
@@ -191,14 +202,37 @@ sub processQPh {
         } else { #else just a single element
             $texList = grabTex($internalRaw);
         }
+
+        my $qBody = "";
+
+        if ($topLevelFraction == 1) { #prepend \frac{ heading
+            $qBody = '\frac{';
+        }
         #'( lst ;' is so far here
-        my $qBody = '(' . $texList . ';';
+        $qBody = $qBody . '(' . $texList . ';';
 
         my @addOns = split(',', $internalPieces[1]);
         #$qBody now will become the correct in-place substitution
         #now is '( lst ; q)_{n}'
         $qBody = $qBody . grabTex($addOns[1]) . ')_{' . grabTex($addOns[2]) . '}'; 
         
+        #fraction handling cases
+        if ($topLevelFraction == 1) {
+            $topLevelFraction = 2; # prepare for denominator
+            $qBody = $qBody . '}{';
+            $pieces[1] =~ s/\///;
+        } else {
+            if ($topLevelFraction == 2) {
+                $topLevelFraction = 0; # reset indicator
+                if (substr($pieces[1], 0, 1) eq ')') {
+                    $pieces[1] =~ s/\)//;
+                     $qBody = $qBody . ')}'; #close denominator in case of parentheses
+                } else {
+                     $qBody = $qBody . '}'; #close denominator
+                }
+            }
+        }
+
         #now modify $qString by putting pieces back together
         $qString = $pre . $qBody . $pieces[1];
     } while ($qString =~ /QPh\[/); #Regexp for QPh
@@ -224,6 +258,10 @@ sub processQPhI {
         #$pieces[1] -> ALL remaining text that comes after the QPhI[...], must be saved for later
         #$pieces[2] -> any preceding text before '['; is "" in this context due to prior processing
 
+        if (substr($pieces[1], 0, 1) eq '/') {
+            $topLevelFraction = 1;
+        }
+
         #peel off external []'s
         my $rawContents = substr($pieces[0], 1, length($pieces[0]) - 2);
 
@@ -241,11 +279,35 @@ sub processQPhI {
         } else {
             $texList = grabTex($internalRaw);
         }
-        my $qBody = '(' . $texList . ';';
+
+        my $qBody = "";
+
+        if ($topLevelFraction == 1) { #prepend \frac{ heading
+            $qBody = '\frac{';
+        }
+
+        $qBody = $qBody . '(' . $texList . ';';
         my @addOns = split(',', $internalPieces[1]);
         #$qBody now will become the correct in-place substitution
         $qBody = $qBody . grabTex($addOns[1]) . ')_{\infty}'; 
         
+        #fraction handling cases
+        if ($topLevelFraction == 1) {
+            $topLevelFraction = 2; # prepare for denominator
+            $qBody = $qBody . '}{';
+            $pieces[1] =~ s/\///;
+        } else {
+            if ($topLevelFraction == 2) {
+                $topLevelFraction = 0; # reset indicator
+                if (substr($pieces[1], 0, 1) eq ')') {
+                    $pieces[1] =~ s/\)//;
+                     $qBody = $qBody . ')}'; #close denominator in case of parentheses
+                } else {
+                     $qBody = $qBody . '}'; #close denominator
+                }
+            }
+        }
+
         #now modify $qString by putting pieces back together
         $qString = $pre . $qBody . $pieces[1];
     } while ($qString =~ /QPhI/); #Regexp for QPhI
